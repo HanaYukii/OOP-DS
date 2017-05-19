@@ -3,12 +3,7 @@
 
 #include <bits/stdc++.h>
 using namespace std;
-typedef struct ht
-{
-    string Gender;
-    int Height;
-    int Weight;
-}ht;
+
 
 class HashTable
 {
@@ -19,6 +14,7 @@ class HashTable
 
         HashTable &operator[](string s);
 
+
         string getGender();
 
         int getHeight();
@@ -27,9 +23,11 @@ class HashTable
 
 
     private:
-        unordered_map<string,ht> key;
+        vector<int> Height, Weight;
+        vector<string> Gender;
+        unordered_map<string,int> key;
         int size;
-        string search;
+        int search;
 };
 
 #endif // HASHTABLE

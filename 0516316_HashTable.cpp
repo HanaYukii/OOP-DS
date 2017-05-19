@@ -1,37 +1,34 @@
-#include<bits/stdc++.h>
-#include "_HashTable.h"
-
+#include "0516316_HashTable.h"
 HashTable::HashTable()
 {
-
+    Height.clear();
+    Weight.clear();
+    Gender.clear();
+    key.clear();
     size=0;
 };
 void HashTable::addItem(string key, string Gender, int Height, int Weight)
 {
-    ht add;
-    add.Gender=Gender;
-    add.Height=Height;
-    add.Weight=Weight;
-    this->key.insert(make_pair(key,add));
+    this->key.insert(make_pair(key,size));
+    this->Height.push_back(Height);
+    this->Weight.push_back(Weight);
+    this->Gender.push_back(Gender);
     size++;
 };
 HashTable &HashTable::operator[](string s)
 {
-    search=s;
+    search=key[s];
     return *this;
 };
 string HashTable::getGender()
 {
-    ht ans=key[search];
-    return ans.Gender;
+    return Gender[search];
 };
 int HashTable::getHeight()
 {
-    ht ans=key[search];
-    return ans.Height;
+    return Height[search];
 };
 int HashTable::getWeight()
 {
-    ht ans=key[search];
-    return ans.Weight;
+    return Weight[search];
 };
