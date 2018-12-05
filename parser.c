@@ -81,14 +81,14 @@ void Insert(symbol x,int lv,int c){
   }
   else if(lv<symboltable.size()-1){
     if(Opt_Symbol)
-      printTable(symboltable[(int)symboltable.size()-1]);
+      printTable(symboltable[lv+1]);
     symboltable.pop_back();
   }
   if(c){
-    symboltable[lv].pb(tmp);
+    symboltable[lv].pb(x);
   }
   else{
-    symboltable[lv].insert(symboltable[lv].begin(),tmp);
+    symboltable[lv].insert(symboltable[lv].begin(),x);
   }
 }
 bool dupl(symbol tmp,int lv){
