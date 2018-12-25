@@ -1,12 +1,11 @@
 %{
-struct type{
-	char* str;
-};
-#define YYSTYPE type
+
+#include"datatype.h"
 #include "y.tab.h"
-extern "C"{
+extern "C"
+{
 	int yyerror(char *msg);
-	extern int yylex();
+	extern int yylex(void);
 }
 #define LIST                strcat(buf, yytext)
 #define token(t)            {LIST; if (Opt_Token) printf("<%s>\n", #t);}
@@ -14,13 +13,11 @@ extern "C"{
 #define tokenString(t, s)   {LIST; if (Opt_Token) printf("<%s:%s>\n", t, s);}
 #define MAX_LINE_LENG 256
 #define MAX_ID_LENG 256 
-int Opt_Source = 1;
-int Opt_Token = 1;
-int Opt_Statistic = 1;
-int Opt_Symbol=1;
+int Opt_Source = 0;
+int Opt_Token = 0;
+int Opt_Statistic = 0;
+int Opt_SymTable = 0;//default is off
 int linenum = 1;
-int nowlv=0;
-int Else=0;
 char buf[MAX_LINE_LENG];
 char strContent[MAX_LINE_LENG];
 typedef struct ids{
@@ -37,7 +34,7 @@ id *new_id();
 %x SOURCE
 %x TOKEN
 %x STATISTIC
-%x SYMBOL
+%x SYMTABLE
 %x OTHER
 %x STR
 %x STR_ESCAPE
@@ -65,7 +62,7 @@ id *new_id();
 	}
 <PRAGMA>"symbol"	{
 		LIST;
-		BEGIN SYMBOL;
+		BEGIN SYMTABLE;
 	}
 <SOURCE>"on"	{
 		LIST;
@@ -118,20 +115,20 @@ id *new_id();
 		printf("Error at line %d: %s\n",linenum, yytext);
         exit(0);
 	}
-<SYMBOL>"on"	{
+<SYMTABLE>"on" {
 		LIST;
-		Opt_Symbol = 1;
+		Opt_SymTable = 1;
 		BEGIN OTHER;
 	}
-<SYMBOL>"off"	{
+<SYMTABLE>"off" {
 		LIST;
-		Opt_Symbol = 0;
+		Opt_SymTable = 0;
 		BEGIN OTHER;
 	}
-<SYMBOL>[\t ]+	{
+<SYMTABLE>[\t ]+ {
 		LIST;
 	}
-<SYMBOL>.	{
+<SYMTABLE>. {
 		printf("Error at line %d: %s\n",linenum, yytext);
         exit(0);
 	}
@@ -181,16 +178,16 @@ id *new_id();
 		tokenString("delim", ";");	return SEMICOLON;
 	}
 "["	{
-		yylval.str=strdup(yytext);tokenString("delim", "["); 	return ML_BRACE;
+		tokenString("delim", "["); 	return ML_BRACE;
 	}
 "]"	{
-		yylval.str=strdup(yytext);tokenString("delim", "]");	return MR_BRACE;
+		tokenString("delim", "]");	return MR_BRACE;
 	}
 "{"	{
-		nowlv++;tokenString("delim", "{");	return L_BRACE;
+		tokenString("delim", "{");	return L_BRACE;
 	}
 "}"	{
-		nowlv--;tokenString("delim", "}");	return R_BRACE;
+		tokenString("delim", "}");	return R_BRACE;
 	}
 "+"	{
 		token("+");	return ADD_OP;
@@ -247,7 +244,7 @@ id *new_id();
 
 "if"	{tokenString("KW", yytext);	return IF;}
 
-"else"	{Else=1; tokenString("KW", yytext);	return ELSE;}
+"else"	{tokenString("KW", yytext);	return ELSE;}
 
 "true"	{tokenString("KW", yytext);	return TRUE;}
 
@@ -255,19 +252,19 @@ id *new_id();
 
 "for"	{tokenString("KW", yytext);	return FOR;}
 
-"int"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return INT;}
+"int"	{tokenString("KW", yytext);	return INT;}
 
-"print"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return PRINT;}
+"print"	{tokenString("KW", yytext);	return PRINT;}
 
-"bool"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return BOOL;}
+"bool"	{tokenString("KW", yytext);	return BOOL;}
 
-"void"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return VOID;}
+"void"	{tokenString("KW", yytext);	return VOID;}
 
-"float"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return FLOAT;}
+"float"	{tokenString("KW", yytext);	return FLOAT;}
 
-"double"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return DOUBLE;}
+"double"	{tokenString("KW", yytext);	return DOUBLE;}
 
-"string"	{yylval.str=strdup(yytext);tokenString("KW", yytext);	return STRING;}
+"string"	{tokenString("KW", yytext);	return STRING;}
 
 "continue"	{tokenString("KW", yytext);	return CONTINUE;}
 
@@ -275,21 +272,18 @@ id *new_id();
 
 "return"	{tokenString("KW", yytext);	return RETURN;}
 
-"const"		{yylval.str=strdup(yytext);tokenString("KW", yytext);	return CONST;}
+"const"		{tokenString("KW", yytext);	return CONST;}
 	
 -?0 |
 [1-9][0-9]* {
-		yylval.str=strdup(yytext);
-		tokenString("integer", yytext);	return INT_CONST;
+		tokenString("integer", yytext);yylval.intVal=atoi(yytext);return INT_CONST;
 	}
 [0-9]+\.[0-9]+	{
-		yylval.str=strdup(yytext);
-		tokenString("float", yytext);	return FLOAT_CONST;
+		tokenString("float", yytext);yylval.floatVal=atof(yytext);return FLOAT_CONST;
 	}
 
 ([0-9]+|([0-9]*\.[0-9]+))([eE][-+]?[0-9]+)	{
-		yylval.str=strdup(yytext);
-		tokenString("scientific", yytext);	return SCIENTIFIC;
+		tokenString("scientific", yytext);yylval.doubleVal=strtod(yytext,NULL);	return SCIENTIFIC;
 	}
 "\""	{ 
 		LIST;
@@ -334,6 +328,7 @@ id *new_id();
 <STR>\"	{
 		//LIST;
 		//strcat( buf, "\"");
+		yylval.stringVal = strdup(strContent);
 		if( Opt_Token)
 			tokenString("string", strContent);
 		BEGIN INITIAL;
@@ -379,7 +374,8 @@ id *new_id();
 		if(Opt_Statistic){
 			set(&id_head,yytext);
 		}
-		yylval.str=strdup(yytext);
+		yylval.idName = (char*)malloc(33*sizeof(char));
+		strncpy(yylval.idName,yytext,32);
 		tokenString("id",yytext);	return ID;
 	}
 .	{
