@@ -1,6 +1,6 @@
-TARGET = parser
+TARGET = compiler
 OBJECT = lex.yy.c y.tab.c y.tab.o lex.yy.o y.output parser y.tab.h main.o semcheck.o symtab.o
-CC = gcc -g
+CC = g++ -g -w -fpermissive
 LEX = flex
 YACC = yacc -v
 YACCFLAG = -d
@@ -8,7 +8,7 @@ LIBS = -lfl
 
 all: $(TARGET)
 
-parser: y.tab.o lex.yy.o main.o semcheck.o symtab.o
+compiler: y.tab.o lex.yy.o main.o semcheck.o symtab.o
 	$(CC) -o $(TARGET) y.tab.o lex.yy.o main.o semcheck.o symtab.o $(LIBS)
 
 y.tab.o: y.tab.c

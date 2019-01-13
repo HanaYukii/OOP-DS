@@ -1,8 +1,10 @@
+#include <string>
+#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include "header.h"
 #include "symtab.h"
-
 extern int yyparse();
 extern FILE* yyin;
 
@@ -11,6 +13,10 @@ extern struct PType *funcReturn;
 extern char fileName[256];
 
 extern __BOOLEAN semError; 
+
+using namespace std;
+ofstream fout;
+string fname;
 
 int  main( int argc, char **argv )
 {
@@ -33,6 +39,12 @@ int  main( int argc, char **argv )
    		exit(0);
  	} 
 
+	//fname = string(argv[1]);
+	fname = "output";
+	fout.open(fname + ".j");
+	fout << ".class public " + fname << endl;
+	fout << ".super java/lang/Object" << endl;
+	fout << ".field public static _sc Ljava/util/Scanner;" << endl;
 	symbolTable = (struct SymTable *)malloc(sizeof(struct SymTable));
 	initSymTab( symbolTable );
 
@@ -50,6 +62,7 @@ int  main( int argc, char **argv )
 		fprintf( stdout, "| There is no syntactic and semantic error! |\n" );
 		fprintf( stdout, "|-------------------------------------------|\n" );
 	}
+	fout.close();
 
 	exit(0);
 }

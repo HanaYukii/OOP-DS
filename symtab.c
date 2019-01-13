@@ -1,8 +1,10 @@
 #include "header.h"
 #include "symtab.h"
+#include "semcheck.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <iostream>
 
 
 void initSymTab( struct SymTable *table )

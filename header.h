@@ -2,6 +2,9 @@
 #define _HEADER_H_
 
 #define HASHBUNCH 23
+#include <vector>
+#include <string>
+using namespace std;
 
 typedef enum { __FALSE, __TRUE } __BOOLEAN;
 typedef enum { VOID_t, INTEGER_t, BOOLEAN_t, STRING_t, FLOAT_t, DOUBLE_t,  ARRAY_t, FUNCTION_t, \
@@ -113,7 +116,6 @@ struct SymNode {
 	struct SymNode *prev;
 	
 	__BOOLEAN isFuncDefine;
-	int declarationLine;
 };
 
 struct SymTable {

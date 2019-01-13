@@ -8,6 +8,7 @@
 #define tokenString(t, s)   {LIST; if (Opt_Token) printf("<%s:%s>\n", t, s);}
 #define MAX_LINE_LENG 256
 #define MAX_ID_LENG 256 
+extern "C" int yylex();
 int Opt_Source = 0;
 int Opt_Token = 0;
 int Opt_Statistic = 0;
